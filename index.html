@@ -1,0 +1,326 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Vocabulary Quest</title>
+<style>
+*{box-sizing:border-box;margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{min-height:100%}
+body{font-family:system-ui,"Segoe UI",Tahoma,sans-serif;background:linear-gradient(160deg,#4f46e5,#7c3aed 50%,#0ea5e9) fixed;color:#fff}
+#app{max-width:560px;margin:auto;padding:10px}
+.card{background:rgba(255,255,255,.15);border-radius:18px;padding:12px;margin:10px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.btn{border:0;border-radius:14px;padding:12px 14px;font-family:inherit;font-weight:700;font-size:16px;background:#fbbf24;color:#3b2a00;box-shadow:0 4px 0 #b45309;cursor:pointer;margin:5px 0}
+.btn:active{transform:translateY(3px);box-shadow:none}
+.btn.alt{background:#fff;color:#3730a3;box-shadow:0 4px 0 #a5b4fc}
+.btn.sm{padding:6px 10px;font-size:15px;margin:0}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.w100{width:100%;display:block}
+.bar{height:12px;background:rgba(0,0,0,.25);border-radius:9px;overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#fde047,#f59e0b);transition:width .5s}
+.big{font-size:56px;text-align:center}
+.pr{font-size:24px;font-weight:700;text-align:center;margin:10px 0}
+.opts{display:grid;gap:10px}
+.opt,.mc,.tile{border:0;background:#fff;color:#312e81;font-family:inherit;font-weight:700;cursor:pointer;box-shadow:0 4px 0 #c7d2fe}
+.opt{font-size:20px;padding:14px;border-radius:14px}
+.opt.bad{background:#fecaca;color:#7f1d1d;opacity:.7}
+.opt.good{background:#bbf7d0;color:#14532d}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mc{aspect-ratio:1;border-radius:14px;font-size:15px;padding:4px}
+.mc.up{background:#fde68a}
+.slots,.tiles{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.slot{width:34px;height:42px;background:rgba(255,255,255,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}
+.tile{width:44px;height:48px;font-size:22px;border-radius:10px}
+.tile:disabled{opacity:.3}
+.fb{margin:10px 0;padding:10px;border-radius:12px;background:rgba(0,0,0,.28);animation:pop .3s}
+.ar{direction:rtl;unicode-bidi:plaintext}
+.hero{font-size:46px;animation:bob 2s ease-in-out infinite}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:center}
+.stats div{background:rgba(0,0,0,.2);border-radius:12px;padding:8px}
+.bg{display:inline-block;background:#fde68a;color:#78350f;border-radius:10px;padding:4px 8px;margin:3px;font-size:14px}
+.wl{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.2)}
+.lock{filter:grayscale(1);opacity:.5}
+@keyframes pop{0%{transform:scale(.85);opacity:.4}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+@keyframes bob{50%{transform:translateY(-5px)}}
+#fl{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+#fl span{position:absolute;bottom:-60px;font-size:30px;opacity:.55;animation:fly linear infinite}
+#app{position:relative;z-index:1}
+.logo{display:flex;align-items:center;gap:8px;cursor:pointer;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
+.lt{display:flex;flex-direction:column;align-items:center;font-size:30px;font-weight:900;line-height:1.1;color:#fde047;-webkit-text-stroke:5px #1e3a8a;paint-order:stroke fill;transform:rotate(-3deg)}
+.lt small{font-size:11px;letter-spacing:2px;color:#fff;-webkit-text-stroke:0;font-weight:800}
+.ic{display:inline-flex;width:34px;height:34px;border-radius:50%;align-items:center;justify-content:center;background:#fff;margin-inline-end:8px;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.btn.c0{background:linear-gradient(#34d399,#059669);color:#fff;box-shadow:0 4px 0 #065f46}
+.btn.c1{background:linear-gradient(#fb923c,#ea580c);color:#fff;box-shadow:0 4px 0 #9a3412}
+.btn.c2{background:linear-gradient(#f87171,#dc2626);color:#fff;box-shadow:0 4px 0 #991b1b}
+.btn.c3{background:linear-gradient(#38bdf8,#0284c7);color:#fff;box-shadow:0 4px 0 #075985}
+.btn.c4{background:linear-gradient(#c084fc,#9333ea);color:#fff;box-shadow:0 4px 0 #6b21a8}
+.btn.c5{background:linear-gradient(#f472b6,#db2777);color:#fff;box-shadow:0 4px 0 #9d174d}
+input{width:100%;padding:12px;border-radius:12px;border:0;font-size:20px;text-align:center;font-family:inherit;margin:10px 0}
+@keyframes fly{to{transform:translateY(-115vh) rotate(40deg)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body><div id="fl"></div><div id="app"></div>
+<script>
+/* ===== VOCABULARY DATA (replace this list for a new unit). Line = english|arabic|emoji(optional). #v = verbs, #e = expressions ===== */
+const RAW=[
+["Sports for Better Health","🏃",`heart|قلب|🫀
+muscles|عضلات|💪
+lungs|رئتين|🫁
+bones|عظام|🦴
+fit|لائق بدنيًا
+first|أولًا
+normal|عادي
+stress|ضغط
+important|مهم
+exercise|تمرين
+before|قبل
+healthy|صحي
+weight|وزن
+regularly|بانتظام
+sports|رياضة
+stronger|أقوى
+better|أفضل
+increase|يزيد
+reduces|يقلل
+swimming|سباحة|🏊
+#v
+make|يصنع
+lose|يخسر
+swim|يسبح
+get|يحصل على
+go|يذهب
+#e
+in fact|في الحقيقة
+alright|حسنًا
+get tired|يتعب
+exactly|بالضبط
+absolutely|إطلاقًا
+now? sure|الآن؟ بالتأكيد`],
+["My Habits: Now and Then","🍎",`chips|شيبسي|🍟
+burgers|برجر|🍔
+sweets|حلويات|🍬
+vegetables|خضروات|🥦
+carrots|جزر|🥕
+journey|رحلة
+share|يشارك
+habits|عادات
+weekends|إجازة نهاية الأسبوع
+early|مبكرًا
+late|متأخر
+now|الآن
+morning|صباح
+vitamins|فيتامينات
+snack|وجبة خفيفة
+Saturday|السبت
+grill|يشوي
+bake|يخبز
+follow|يتابع
+changes|تغييرات
+bananas|موز|🍌
+#v
+feel|يشعر
+wake up|يستيقظ
+drink|يشرب
+give|يعطي
+eat|يأكل
+#e
+now and then|بين الحين والآخر
+used to|اعتاد أن
+instead of|بدلًا من
+in the past|في الماضي
+feel better|يشعر بتحسن
+followed by|متبوع بـ`],
+["Heart and Blood","❤️",`fist|قبضة|✊
+cell|خلية
+blood vessels|أوعية دموية
+tube|أنبوب|🧪
+organs|الأعضاء
+size|الحجم
+pump|المضخة
+blood|الدم|🩸
+parts|الأجزاء
+nutrients|عناصر غذائية
+oxygen|الأكسجين
+carbon dioxide|ثاني أكسيد الكربون
+waste|النفايات
+through|عبر
+muscle|العضلات
+alive|حيًّا
+tips|نصائح
+powerful|قوي
+#v
+hurt|يجرح – يؤذي
+keep|يحافظ
+sleep|ينام
+take|يأخذ
+#e
+the most important|الأكثر أهمية
+take away|يبعد
+too much|كثير جدًا
+a lot of water|كثير من المياه
+getting sick|يمرض
+take care of|يعتني بـ`],
+["Life Savers in Action","🚑",`hospital|مستشفى|🏥
+diagnose|تشخيص
+medicine|دواء|💊
+pharmacists|صيادلة
+paramedics|المسعفين|🚑
+heroes|الأبطال
+treat|يعالج
+illnesses|الأمراض
+knowledge|المعرفة
+skills|المهارات
+check|يفحص
+diseases|الأمراض
+provide|تقديم
+treatments|العلاجات
+support|دعم
+patients|المرضى
+receive|استقبال
+emergencies|حالات الطوارئ
+the spot|المكان
+encourage|يشجع
+active|نشيط
+harmful|ضار
+kindness|طيبة
+showing|إظهار
+respect|الاحترام
+advice|نصيحة
+#v
+thank|يشكر
+show|يعرض – يظهر
+#e
+healthcare workers|عاملو الرعاية الصحية
+life savers|منقذو الحياة
+in action|في العمل
+make sure|يتأكد
+around the clock|على مدار الساعة
+respond quickly|يستجيب بسرعة`]];
+/* Example sentences for Missing Word (written by the game author, not taken from the textbook) */
+const SENT={heart:"My ___ beats faster when I run.",muscles:"Exercise makes my ___ strong.",lungs:"We breathe air into our ___.",bones:"Milk is good for strong ___.",swimming:"___ is a great sport for the whole body.",regularly:"I exercise ___ every week.",stronger:"Exercise makes you ___.",weight:"He wants to lose ___.",carrots:"Rabbits love to eat ___.",bananas:"Monkeys love yellow ___.",vegetables:"Eat more ___ and fruit to stay healthy.",chips:"Too many ___ are not healthy for us.",sweets:"I don't eat many ___ because they have a lot of sugar.",morning:"I wake up early in the ___.",weekends:"We visit my grandma at the ___.",bake:"My mother will ___ a cake.",vitamins:"Fruit and vegetables have many ___.",habits:"Sleeping early is one of my healthy ___.",blood:"Your heart pumps ___ around the body.",oxygen:"We need ___ to breathe.",sleep:"I need to ___ early tonight.",tube:"The nurse put the blood in a ___.",alive:"Our heart keeps us ___.",tips:"Here are some ___ for a healthy life.",hospital:"The doctor works in a ___.",medicine:"Take your ___ when you are ill.",paramedics:"The ___ came quickly in the ambulance.",patients:"The nurses help the ___ in the hospital.",advice:"The doctor gave me good ___.",respect:"We should show ___ to doctors and nurses."};
+const BAN={tips:'advice',advice:'tips'};
+const BD={fv:['First Victory','🏅','Clear your first level'],we:['Word Explorer','🧭','Clear all 4 worlds'],sm:['Spelling Master','🔤','Spell 10 words correctly'],ps:['Perfect Streak','🔥','Get 5 correct in a row'],vc:['Vocabulary Champion','🏆','Beat the Final Boss']};
+const HEROES=[['🧒',0],['🦸',50],['🧙',80],['🥷',120],['🐯',160],['🤖',200]];
+const MODES=[['A','🔗','Word Match'],['B','✏️','Missing Word'],['C','🔤','Spelling Rush'],['D','🃏','Memory Cards'],['E','🖼️','Picture Challenge']];
+
+const $=s=>document.getElementById(s),sh=a=>[...a].sort(()=>Math.random()-.5),nz=s=>s.replace(/^ال/,'').replace(/[\u064B-\u0652]/g,'');
+const WORDS=[];RAW.forEach((r,wi)=>{let t='w';r[2].split('\n').forEach(l=>{if(l[0]=='#')t=l[1];else if(l){const[e,a,m]=l.split('|');WORDS.push({id:e,e,a,m:m||'',t,w:wi})}})});
+const dup={};WORDS.forEach(w=>{const k=nz(w.a);dup[k]=(dup[k]||0)+1});
+const spl=w=>/^[a-zA-Z]{4,}$/.test(w.e);
+let S;try{S=JSON.parse(localStorage.vq5)}catch(e){}
+S=Object.assign({xp:0,coins:0,best:0,cl:[],tr:0,bd:[],ms:{},hero:'🧒',own:['🧒'],mute:0,sm:0,sp:0},S||{});
+const save=()=>{try{localStorage.vq5=JSON.stringify(S)}catch(e){}};
+let V=S.name?'h':'n',R={},cw=0,ac;
+const snd=(f,d=.12)=>{if(S.mute)return;try{ac=ac||new(window.AudioContext||webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.07;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}};
+const lv=()=>Math.floor(S.xp/500)+1;
+const weak=()=>WORDS.filter(w=>{const m=S.ms[w.id];return m&&m.w>m.c});
+const mark=(id,ok)=>{const m=S.ms[id]=S.ms[id]||{c:0,w:0};ok?m.c++:m.w++};
+const bd=id=>{if(!S.bd.includes(id)){S.bd.push(id);R.nb&&R.nb.push(id);snd(880,.3)}};
+const pts=(p,c)=>{S.xp+=p;R.xp+=p;R.base+=p;S.coins+=c;R.coins+=c};
+const cq=()=>R.qs[R.i];
+const unl=i=>i==0||S.cl.includes(i-1);
+const bossOk=()=>RAW.every((_,i)=>S.cl.includes(i));
+
+function mk(w,k){
+ if(k=='b'){const d=sh(WORDS.filter(x=>x.w!=w.w&&x.t=='w'&&x.id!=BAN[w.id])).slice(0,3);return{w,p:SENT[w.id],o:sh([w.e,...d.map(x=>x.e)]),ans:w.e,L:1,x:[],tr:0}}
+ if(k=='p'){const d=sh(WORDS.filter(x=>x.m&&x.id!=w.id)).slice(0,3);return{w,big:w.m,p:'What is this?',o:sh([w.e,...d.map(x=>x.e)]),ans:w.e,L:1,x:[],tr:0}}
+ if(k=='s')return{w,k:'s',ans:w.e,tl:sh(w.e.split('')),u:[],tr:0};
+ const rev=dup[nz(w.a)]==1&&Math.random()<.5,d=sh(WORDS.filter(x=>x.t==w.t&&nz(x.a)!=nz(w.a)&&x.id!=w.id)).slice(0,3);
+ return rev?{w,p:w.a,pa:1,o:sh([w.e,...d.map(x=>x.e)]),ans:w.e,L:1,x:[],tr:0}:{w,p:w.e,o:sh([w.a,...d.map(x=>x.a)]),ans:w.a,L:0,x:[],tr:0}}
+const mix=(ws,n)=>ws.slice(0,n).map(w=>{const a=['a'];if(SENT[w.id])a.push('b');if(w.m)a.push('p');if(spl(w))a.push('s');return mk(w,sh(a)[0])});
+
+function go(m,wi,u){
+ clearInterval(R.iv);const ws=wi>=0?WORDS.filter(w=>w.w==wi):WORDS;
+ R={m,wi,u,i:0,xp:0,base:0,sb:0,lb:0,ok:0,n:0,st:0,wr:[],nb:[],coins:0,l0:lv()};
+ if(m=='A')R.qs=sh(ws).map(w=>mk(w,'a'));
+ if(m=='B')R.qs=sh(ws.filter(w=>SENT[w.id])).slice(0,10).map(w=>mk(w,'b'));
+ if(m=='C')R.qs=sh(ws.filter(spl)).slice(0,8).map(w=>mk(w,'s'));
+ if(m=='E')R.qs=sh(ws.filter(w=>w.m)).slice(0,8).map(w=>mk(w,'p'));
+ if(m=='F'){R.qs=sh(ws).slice(0,u?12:99).map(w=>mk(w,'a'));if(!u){R.tm=60;R.iv=setInterval(()=>{R.tm--;const e=$('tm');if(e)e.textContent=R.tm;if(R.tm<=0)fin()},1000)}}
+ if(m=='G'){const wk=weak().map(w=>w.id);R.qs=mix([...sh(WORDS.filter(w=>wk.includes(w.id))),...sh(WORDS.filter(w=>!wk.includes(w.id)))],30)}
+ if(m=='R')R.qs=mix(sh(weak()),10);
+ if(m=='D'){const p=sh(ws.filter(w=>w.e.length<=14&&w.a.length<=16)).slice(0,6);R.cd=sh(p.flatMap(w=>[{k:w.id,t:w.e,l:1},{k:w.id,t:w.a,l:0}]));R.f=[];R.mt=0;R.ms=0;R.n=6}
+ V='p';draw()}
+
+function okAns(q){q.dn=1;R.n++;const f=!q.tr;let p=0,m='';
+ if(f){p=q.h?50:100;R.ok++;R.st++;S.sm=Math.max(S.sm,R.st);mark(q.w.id,1);if(q.k=='s'){S.sp++;if(S.sp>=10)bd('sm')}
+  if(R.st%3==0){R.sb+=50;S.xp+=50;R.xp+=50;m=' 🔥 +50 streak bonus!'}if(R.st>=5)bd('ps')}
+ pts(p,f?5:0);snd(660);
+ q.fb=`✅ ${f?'Great job!':'Good, you got it!'} <b>${q.w.e}</b> = <span class=ar>${q.w.a}</span>${p?' · +'+p+' XP':''}${m}`;
+ if(R.m=='F'&&R.tm!=null)setTimeout(nx,900)}
+function badAns(q,t){q.tr=1;if(!q.wr){q.wr=1;R.wr.push(q.w.id);mark(q.w.id,0)}R.st=0;snd(220);
+ const x=t&&WORDS.find(x=>x.e==t||x.a==t);
+ q.fb=`🤔 ${x?`<b>${x.e}</b> = <span class=ar>${x.a}</span> — `:''}<span class=ar>مش دي الإجابة المناسبة، حاول تاني 💪</span>`}
+function pk(i){const q=cq();if(q.dn)return;const t=q.o[i];if(t==q.ans)okAns(q);else{q.x.push(i);badAns(q,t)}draw()}
+function tl(i){const q=cq();if(q.dn||q.u.includes(i))return;q.u.push(i);snd(440,.05);
+ if(q.u.length==q.ans.length){if(q.u.map(j=>q.tl[j]).join('')==q.ans)okAns(q);else{badAns(q);draw();setTimeout(()=>{q.u=[];draw()},800);return}}draw()}
+function clr(){const q=cq();if(!q.dn){q.u=[];draw()}}
+function hint(){const q=cq();if(q.dn||q.h)return;q.h=1;if(q.o)q.gone=sh(q.o.map((t,i)=>i).filter(i=>q.o[i]!=q.ans&&!q.x.includes(i))).slice(0,2);
+ q.fb='💡 Hint used. This answer is now worth up to +50 XP.';draw()}
+function nx(){if(R.end||V!='p')return;R.i++;R.i>=R.qs.length?fin():draw()}
+function flip(i){const c=R.cd[i];if(c.f||c.d||R.lock)return;c.f=1;R.f.push(i);snd(500,.06);
+ if(R.f.length==2){const[a,b]=R.f.map(j=>R.cd[j]);R.f=[];
+  if(a.k==b.k){a.d=b.d=1;R.mt++;pts(100,5);mark(a.k,1);snd(784);if(R.mt==6){R.ok=6;R.n=6+R.ms;draw();return void setTimeout(fin,700)}}
+  else{R.ms++;mark(a.k,0);mark(b.k,0);R.lock=1;setTimeout(()=>{a.f=b.f=0;R.lock=0;draw()},900)}}
+ draw()}
+function fin(){if(R.end)return;R.end=1;clearInterval(R.iv);R.acc=R.n?Math.round(R.ok/R.n*100):0;
+ const pass=R.acc>=60&&R.n>=3;R.pass=pass;
+ if(pass){R.lb=200;S.xp+=200;R.xp+=200;S.coins+=30;R.coins+=30;bd('fv');
+  if(R.wi>=0&&'ABCDEF'.includes(R.m)&&!S.cl.includes(R.wi)){R.need=1;S.pend={wi:R.wi,m:R.m,ok:R.ok,n:R.n,acc:R.acc,xp:R.xp}}
+  if(R.m=='G'){S.tr=1;bd('vc')}}
+ if(RAW.every((_,i)=>S.cl.includes(i)))bd('we');
+ S.best=Math.max(S.best,R.xp);save();V='r';draw()}
+
+const topbar=()=>`<div class=row style="margin:4px 0"><div class=logo onclick="hm()"><svg width=44 height=50 viewBox="0 0 44 50"><defs><linearGradient id=g1 x1=0 y1=0 x2=0 y2=1><stop offset=0 stop-color="#fde047"/><stop offset=1 stop-color="#f97316"/></linearGradient></defs><path d="M22 2 40 9v14c0 12-8 20-18 25C12 43 4 35 4 23V9z" fill="url(#g1)" stroke="#fff" stroke-width=3 stroke-linejoin=round /><path d="M22 14L24.47 20.6 31.51 20.91 26 25.3 27.88 32.09 22 28.2 16.12 32.09 18 25.3 12.49 20.91 19.53 20.6Z" fill="#fff"/></svg><span class=lt>الأبطال<small>CHAMPIONS</small></span></div><button class="btn alt sm" aria-label=sound onclick="S.mute=!S.mute;save();draw()"><svg width=22 height=22 viewBox="0 0 24 24" fill="none" stroke="#3730a3" stroke-width=2.5 stroke-linecap=round stroke-linejoin=round><path d="M4 9v6h4l5 4V5L8 9z" fill="#3730a3"/>${S.mute?'<path d="M17 9l5 6M22 9l-5 6"/>':'<path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>'}</svg></button></div>`;
+const hm=()=>{clearInterval(R.iv);R={};V='h';draw()};
+const to=v=>{V=v;draw()};
+function draw(){$('app').innerHTML=topbar()+({n:namev,h:home,w:wmenu,p:play,r:res,g:gal,s:shop,b:bank}[V])();window.scrollTo(0,0)}
+
+function home(){const wk=weak(),ms=WORDS.filter(w=>{const m=S.ms[w.id];return m&&m.c>=2&&m.c>m.w}).length;
+ return `<div class=card><div class=row><div class=hero>${S.hero}</div><div style="flex:1"><b>Level ${lv()}</b> · ${S.xp} XP<div class=bar><i style="width:${S.xp%500/5}%"></i></div><small>${500-S.xp%500} XP to level ${lv()+1}</small></div></div>
+ <p style="text-align:center;margin-top:6px"><b>👋 ${S.name}</b> <button class="btn alt sm" onclick="to('n')">✏️</button><br>Grade 5 — Unit 2 Challenge<br><small>Learn Words. Earn Rewards. Become a Champion!</small></p></div>
+ <div class=stats><div>🪙 ${S.coins}<br><small>Coins</small></div><div>🏆 ${S.best}<br><small>Best score</small></div><div>📚 ${ms}/${WORDS.length}<br><small>Words mastered</small></div><div>🏅 ${S.bd.length}/5<br><small>Badges</small></div></div>
+ ${S.pend?`<div class=card style="background:#f59e0b;color:#3b2a00"><b class=ar>ابعت نتيجتك للمعلم على واتساب عشان يتفتح العالم التالي 📲</b><a class="btn w100" style="text-decoration:none;text-align:center;background:#25d366;color:#fff" href="${wa(S.pend)}" target="_blank" rel="noopener" onclick="setTimeout(sent,600)">📲 إرسال النتيجة للمعلم</a></div>`:''}
+ <h3 style="margin:12px 0 4px">Adventure Map</h3>
+ ${RAW.map((r,i)=>`<button class="btn c${i} w100 ${unl(i)?'':'lock'}" ${unl(i)?'':'disabled'} onclick="cw=${i};to('w')"><span class=row><span><span class=ic>${r[1]}</span>World ${i+1}: ${r[0]}</span><span>${S.cl.includes(i)?'⭐':unl(i)?'▶':'🔒'}</span></span></button>`).join('')}
+ <button class="btn c4 w100 ${bossOk()?'':'lock'}" ${bossOk()?'':'disabled'} onclick="go('G',-1)">👑 Final Boss Challenge ${S.tr?'🏆':bossOk()?'':'(clear all worlds)'}</button>
+ ${wk.length?`<div class=card><b>Words needing revision (${wk.length})</b><br>${wk.slice(0,8).map(w=>`<span class=bg>${w.e}</span>`).join('')}<button class="btn w100" onclick="go('R',-1)">🔁 Revision Round</button></div>`:''}
+ <div class=row><button class="btn alt" style="flex:1" onclick="to('b')">📖 Word Bank</button><button class="btn alt" style="flex:1" onclick="to('g')">🏅 Badges</button><button class="btn alt" style="flex:1" onclick="to('s')">🛍️ Shop</button></div>`}
+
+function wmenu(){const r=RAW[cw];return `<div class=card><h2>${r[1]} World ${cw+1}</h2><p>${r[0]}</p><p>${S.cl.includes(cw)?'⭐ Cleared':'Score 60%+ in any challenge to clear this world and unlock the next.'}</p></div>
+ ${MODES.map((m,k)=>`<button class="btn c${k} w100" onclick="go('${m[0]}',${cw})"><span class=ic>${m[1]}</span>${m[2]}</button>`).join('')}
+ <div class=row><button class="btn c5 w100" style="flex:1" onclick="go('F',${cw},0)">⏱️ Time Attack (60s)</button><button class="btn c3 w100" style="flex:1" onclick="go('F',${cw},1)">🧘 Untimed</button></div>`}
+
+function play(){
+ if(R.m=='D')return `<div class=card><div class=row><span>Pairs ${R.mt}/6</span><span>⭐ ${R.xp}</span><span>❌ ${R.ms}</span></div><p style="text-align:center">Match each English word with its Arabic meaning</p></div><div class=grid>${R.cd.map((c,i)=>`<button class="mc ${c.f||c.d?'up':''} ${c.l?'':'ar'}" onclick="flip(${i})">${c.f||c.d?c.t:'❓'}</button>`).join('')}</div>`;
+ const q=cq(),timed=R.tm!=null;
+ const hd=`<div class=card><div class=row><span>${timed?'⏱ <b id=tm>'+R.tm+'</b>s':'Q '+(R.i+1)+'/'+R.qs.length}</span><span>⭐ ${R.xp}</span><span>🔥 ${R.st}</span></div><div class=bar><i style="width:${timed?100:R.i/R.qs.length*100}%"></i></div></div>`;
+ let b;
+ if(q.k=='s')b=`<div class=big>${q.w.m}</div><div class="pr ar">${q.w.a}</div><div class=slots>${[...q.ans].map((_,i)=>`<span class=slot>${q.u[i]!=null?q.tl[q.u[i]]:''}</span>`).join('')}</div><div class=tiles>${q.tl.map((c,i)=>`<button class=tile ${q.u.includes(i)||q.dn?'disabled':''} onclick="tl(${i})">${c}</button>`).join('')}</div>${q.h?'<p style="text-align:center">Starts with: <b>'+q.ans[0]+'</b></p>':''}${q.dn?'':'<button class="btn alt sm" onclick="clr()">Clear</button>'}`;
+ else b=`${q.big?'<div class=big>'+q.big+'</div>':''}<div class="pr ${q.pa?'ar':''}">${q.p}</div><div class=opts>${q.o.map((t,i)=>q.gone&&q.gone.includes(i)?'':`<button class="opt ${q.L?'':'ar'} ${q.x.includes(i)?'bad':''} ${q.dn&&t==q.ans?'good':''}" ${q.dn||q.x.includes(i)?'disabled':''} onclick="pk(${i})">${t}</button>`).join('')}</div>`;
+ return hd+`<div class=card>${b}</div>${q.fb?'<div class=fb>'+q.fb+'</div>':''}<div class=row>${q.dn?'':`<button class="btn alt" onclick="hint()" ${q.h?'disabled':''}>💡 Hint</button>`}${q.dn?`<button class="btn" style="flex:1" onclick="nx()">${R.i+1>=R.qs.length?'Finish 🏁':'Next ➜'}</button>`:''}</div>`}
+
+function res(){const wr=R.wr.map(id=>WORDS.find(x=>x.id==id)),nb=R.nb;
+ return `<div class=card style="text-align:center"><div class=big>${R.pass?(R.m=='G'?'🏆':'🎉'):'💪'}</div><h2>${R.pass?(R.m=='G'?'Champion Trophy unlocked!':'Level Complete!'):'Good effort! Try again to reach 60%'}</h2>
+ ${lv()>R.l0?'<p>⬆️ Level up! You are now level '+lv()+'</p>':''}</div>${sendBox()}
+ <div class=card><div class=wl><span>Correct answers</span><b>${R.ok} / ${R.n}</b></div><div class=wl><span>Accuracy</span><b>${R.acc}%</b></div>
+ <div class=wl><span>XP from answers</span><b>${R.base}</b></div><div class=wl><span>Streak bonuses</span><b>${R.sb}</b></div><div class=wl><span>Level bonus</span><b>${R.lb}</b></div>
+ <div class=wl><span><b>Total score</b></span><b>⭐ ${R.xp} XP</b></div><div class=wl><span>Coins earned</span><b>🪙 ${R.coins}</b></div></div>
+ ${nb.length?`<div class=card><b>Achievements unlocked</b><br>${nb.map(i=>`<span class=bg>${BD[i][1]} ${BD[i][0]}</span>`).join('')}</div>`:''}
+ ${wr.length?`<div class=card><b>Recommended revision words</b>${wr.map(w=>`<div class=wl><span>${w.e}</span><span class=ar>${w.a}</span></div>`).join('')}</div>`:''}
+ <button class="btn w100" onclick="go('${R.m}',${R.wi},${R.u?1:0})">🔄 PLAY AGAIN</button><button class="btn alt w100" onclick="hm()">🏠 Home</button>`}
+
+const MN={A:'Word Match',B:'Missing Word',C:'Spelling Rush',D:'Memory Cards',E:'Picture Challenge',F:'Time Attack',G:'Final Boss',R:'Revision'};
+const TEACHER='201116597331';
+const wa=o=>'https://wa.me/'+TEACHER+'?text='+encodeURIComponent(`Vocabulary Quest - Grade 5 Unit 2\nالاسم: ${S.name}\nالعالم: ${o.wi>=0?(o.wi+1)+' - '+RAW[o.wi][0]:'Final Boss'}\nالنشاط: ${MN[o.m]}\nالإجابات الصحيحة: ${o.ok}/${o.n}\nالنسبة: ${o.acc}%\nالنقاط: ${o.xp} XP\nالمستوى: ${lv()}`);
+function sent(){const p=S.pend;if(p){if(!S.cl.includes(p.wi))S.cl.push(p.wi);S.pend=null;snd(880,.3);if(RAW.every((_,i)=>S.cl.includes(i)))bd('we')}save();draw()}
+function sendBox(){const o={wi:R.wi,m:R.m,ok:R.ok,n:R.n,acc:R.acc,xp:R.xp};
+ const a=(c,t,x)=>`<a class="btn w100" style="text-decoration:none;text-align:center;${c}" href="${wa(o)}" target="_blank" rel="noopener" ${x}>${t}</a>`;
+ if(R.need&&S.pend&&S.pend.wi==R.wi)return `<div class=card style="background:#f59e0b;color:#3b2a00"><b class=ar>لازم تبعت نتيجتك للمعلم على واتساب عشان يتفتح العالم التالي 📲</b>${a('background:#25d366;color:#fff','📲 إرسال النتيجة للمعلم','onclick="setTimeout(sent,600)"')}</div>`;
+ if(R.need)return '<p style="text-align:center">🔓 World unlocked!</p>';
+ return R.n?a('background:#fff;color:#166534','📤 Send result to teacher (optional)',''):''}
+function namev(){return `<div class=card style="text-align:center"><div class=big>🎒</div><h2 class=ar>اكتب اسمك الرباعي</h2><p class=ar>مثال: أحمد محمد علي حسن</p><input id=nm class=ar value="${S.name||''}" placeholder="الاسم الرباعي" maxlength=60><p id=er class=ar style="color:#fde047"></p><button class="btn c0 w100" onclick="svn()">ابدأ المغامرة 🚀</button></div>`}
+function svn(){const v=$('nm').value.trim().replace(/\s+/g,' '),p=v.split(' ');if(p.length<4||!/^[\p{L} ]+$/u.test(v)||p.some(x=>x.length<2)){$('er').textContent='لازم تكتب الاسم الرباعي بالحروف (4 كلمات على الأقل)';return}S.name=v;save();hm()}
+function gal(){return `<div class=card><h2>🏅 Achievements</h2>${Object.entries(BD).map(([k,v])=>`<div class="wl ${S.bd.includes(k)?'':'lock'}"><span>${v[1]} <b>${v[0]}</b><br><small>${v[2]}</small></span><span>${S.bd.includes(k)?'✅':'🔒'}</span></div>`).join('')}</div><div class=card style="text-align:center"><div class="big ${S.tr?'':'lock'}">🏆</div><p>${S.tr?'Champion Trophy earned!':'Beat the Final Boss to earn the Champion Trophy'}</p></div>`}
+function buy(h,c){if(S.own.includes(h)){S.hero=h}else if(S.coins>=c){S.coins-=c;S.own.push(h);S.hero=h;snd(784)}save();draw()}
+function shop(){return `<div class=card><h2>🛍️ Hero Shop</h2><p>Coins: 🪙 ${S.coins} (play to earn more — no real money!)</p>${HEROES.map(h=>`<div class=wl><span style="font-size:30px">${h[0]}</span><button class="btn sm" ${S.own.includes(h[0])||S.coins>=h[1]?'':'disabled'} onclick="buy('${h[0]}',${h[1]})">${S.hero==h[0]?'✔ Equipped':S.own.includes(h[0])?'Equip':'🪙 '+h[1]}</button></div>`).join('')}</div>`}
+function bank(){return RAW.map((r,i)=>`<div class=card><b>${r[1]} World ${i+1}: ${r[0]}</b>${WORDS.filter(w=>w.w==i).map(w=>{const m=S.ms[w.id]||{c:0,w:0};return `<div class=wl><span>${m.w>m.c?'🔴':m.c>=2?'🟢':'⚪'} ${w.m} ${w.e}</span><span class=ar>${w.a}</span></div>`}).join('')}</div>`).join('')}
+draw();
+$('fl').innerHTML=['⭐','💊','❤️','🍎','💪','🩺','🏅','🫀','🥕','🏃','🚑','🪙','🦴','🍌'].map((e,i)=>`<span style="left:${(i*7+3)%95}%;animation-duration:${14+i%6*3}s;animation-delay:-${i*2}s">${e}</span>`).join('');
+</script></body></html>
